@@ -18,12 +18,20 @@ Global Vars
 let r=3, c=3, hand_size=5;
 let initialX, initialY;
 let cardToDrag = null;
+let id = 0;
 const cards = new Array(r*c).fill(null);
 
 const board = document.getElementById("board");
 const hand = document.getElementById("hand");
 
 class Card {
+    constructor(id, character) {
+        this.id = id;
+        this.character = character;
+    }
+}
+
+class Character {
     constructor(name, image, up, down, left, right) {
         this.name = name;
         this.image = image;
@@ -37,27 +45,49 @@ class Card {
 /*
 Available Cards metrics: performance, ease of use, community/ecosystem, portability/tooling 
 */
+const characterMap = new Map();
+const apple = new Character("Apple", "img/apple.png", 4, 3, 3, 3);
+characterMap.set(apple.name, apple);
+const coffee = new Character("Coffee", "img/coffee.png", 3, 3, 2, 5);
+characterMap.set(coffee.name, coffee);
+const crab = new Character("Crab", "img/crab.png", 5, 1, 4, 2);
+characterMap.set(crab.name, crab);
+const fish = new Character("Fish", "img/fish.png", 5, 2, 2, 3);
+characterMap.set(fish.name, fish);
+const gin = new Character("Gin", "img/gin.png", 3, 3, 4, 4);
+characterMap.set(gin.name, gin);
+const gopher = new Character("Gopher", "img/gopher.png", 4, 4, 3, 3);
+characterMap.set(gopher.name, gopher);
+const penguin = new Character("Penguin", "img/penguin.png", 3, 2, 5, 3);
+characterMap.set(penguin.name, penguin);
+const sheep = new Character("Sheep", "img/sheep.png", 2, 4, 4, 4);
+characterMap.set(sheep.name, sheep);
+const snake = new Character("Snake", "img/snake.png", 1, 5, 3, 4);
+characterMap.set(snake.name, snake);
+const star = new Character("Star", "img/star.png", 4, 3, 1, 4);
+characterMap.set(star.name, star);
+
 const cardMap = new Map();
-const apple = new Card("Apple", "img/apple.png", 4, 3, 3, 3);
-cardMap.set(apple.name, apple);
-const coffee = new Card("Coffee", "img/coffee.png", 3, 3, 2, 5);
-cardMap.set(coffee.name, coffee);
-const crab = new Card("Crab", "img/crab.png", 5, 1, 4, 2);
-cardMap.set(crab.name, crab);
-const fish = new Card("Fish", "img/fish.png", 5, 2, 2, 3);
-cardMap.set(fish.name, fish);
-const gin = new Card("Gin", "img/gin.png", 3, 3, 4, 4);
-cardMap.set(gin.name, gin);
-const gopher = new Card("Gopher", "img/gopher.png", 4, 4, 3, 3);
-cardMap.set(gopher.name, gopher);
-const penguin = new Card("Penguin", "img/penguin.png", 3, 2, 5, 3);
-cardMap.set(penguin.name, penguin);
-const sheep = new Card("Sheep", "img/sheep.png", 2, 4, 4, 4);
-cardMap.set(sheep.name, sheep);
-const snake = new Card("Snake", "img/snake.png", 1, 5, 3, 4);
-cardMap.set(snake.name, snake);
-const star = new Card("Star", "img/star.png", 4, 3, 1, 4);
-cardMap.set(star.name, star);
+const apple1 = new Card(id++, apple);
+cardMap.set(apple1.id, apple1);
+const coffee1 = new Card(id++, coffee);
+cardMap.set(coffee1.id, coffee1);
+const crab1 = new Card(id++, crab);
+cardMap.set(crab1.id, crab1);
+const fish1 = new Card(id++, fish);
+cardMap.set(fish1.id, fish1);
+const gin1 = new Card(id++, gin);
+cardMap.set(gin1.id, gin1);
+const gopher1 = new Card(id++, gopher);
+cardMap.set(gopher1.id, gopher1);
+const penguin1 = new Card(id++, penguin);
+cardMap.set(penguin1.id, penguin1);
+const sheep1 = new Card(id++, sheep);
+cardMap.set(sheep1.id, sheep1);
+const snake1 = new Card(id++, snake);
+cardMap.set(snake1.id, snake1);
+const star1 = new Card(id++, star);
+cardMap.set(star1.id, star1);
 
 
 /*
@@ -77,8 +107,8 @@ function makeGridCells(row, col) {
 }
 
 function makeHandCards(count) {
-    const starters = ["Gopher", "Crab", "Fish", "Apple", "Sheep"];
-    const opponents = ["Coffee", "Gin", "Penguin", "Snake", "Star"];
+    const starters = [5, 2, 3, 0, 7];
+    const opponents = [1, 4, 6, 8, 9];
     for (let i = 0; i < count; i++) {
         createCard(hand, "player", cardMap.get(starters[i]));
     }
@@ -96,14 +126,14 @@ function createCard(hand, team, cardInfo) {
         card.classList.add('placed');
         dragMouseDown(e);
     };
-    createSpikes(card, cardInfo.up, 'top');
-    createSpikes(card, cardInfo.down, 'bottom');
-    createSpikes(card, cardInfo.left, 'left');
-    createSpikes(card, cardInfo.right, 'right');
+    createSpikes(card, cardInfo.character.up, 'top');
+    createSpikes(card, cardInfo.character.down, 'bottom');
+    createSpikes(card, cardInfo.character.left, 'left');
+    createSpikes(card, cardInfo.character.right, 'right');
     let img = document.createElement('img');
     cardInfo.player = team == "player";
-    img.src = cardInfo.image;
-    img.alt = cardInfo.name;
+    img.src = cardInfo.character.image;
+    img.alt = cardInfo.id;
     card.appendChild(img);
     hand.appendChild(card);
 }
@@ -197,7 +227,7 @@ Game Logic Functions
 */
 function addCard(card, idx) {
     let img = card.querySelector('img');
-    cards[idx] = cardMap.get(img.alt);
+    cards[idx] = cardMap.get(parseInt(img.alt));
 }
 
 function checkAdjacent(cell, idx) {
@@ -206,9 +236,7 @@ function checkAdjacent(cell, idx) {
         if (cards[up]) {
             let placedCard = cards[idx];
             let altCard = cards[up];
-            console.log(placedCard);
-            console.log(altCard);
-            if (placedCard.player != altCard.player && placedCard.up > altCard.down) {
+            if (placedCard.player != altCard.player && placedCard.character.up > altCard.character.down) {
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(up.toString()).querySelector('div');
@@ -227,7 +255,7 @@ function checkAdjacent(cell, idx) {
         if (cards[down]) {
             let placedCard = cards[idx];
             let altCard = cards[down];
-            if (placedCard.player != altCard.player && placedCard.down > altCard.up) {
+            if (placedCard.player != altCard.player && placedCard.character.down > altCard.character.up) {
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(down.toString()).querySelector('div');
@@ -246,7 +274,7 @@ function checkAdjacent(cell, idx) {
         if (cards[left]) {
             let placedCard = cards[idx];
             let altCard = cards[left];
-            if (placedCard.player != altCard.player && placedCard.left > altCard.right) {
+            if (placedCard.player != altCard.player && placedCard.character.left > altCard.character.right) {
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(left.toString()).querySelector('div');
@@ -265,7 +293,7 @@ function checkAdjacent(cell, idx) {
         if (cards[right]) {
             let placedCard = cards[idx];
             let altCard = cards[right];
-            if (placedCard.player != altCard.player && placedCard.right > altCard.left) {
+            if (placedCard.player != altCard.player && placedCard.character.right > altCard.character.left) {
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(right.toString()).querySelector('div');
