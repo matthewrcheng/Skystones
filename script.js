@@ -35,28 +35,28 @@ class Card {
 }
 
 /*
-Available Cards
+Available Cards metrics: performance, ease of use, community/ecosystem, portability/tooling 
 */
 const cardMap = new Map();
-const apple = new Card("Apple", "img/apple.png", 2, 2, 2, 2);
+const apple = new Card("Apple", "img/apple.png", 4, 3, 3, 3);
 cardMap.set(apple.name, apple);
-const coffee = new Card("Coffee", "img/coffee.png", 2, 2, 2, 2);
+const coffee = new Card("Coffee", "img/coffee.png", 3, 3, 2, 5);
 cardMap.set(coffee.name, coffee);
-const crab = new Card("Crab", "img/crab.png", 2, 2, 2, 2);
+const crab = new Card("Crab", "img/crab.png", 5, 1, 4, 2);
 cardMap.set(crab.name, crab);
-const fish = new Card("Fish", "img/fish.png", 2, 2, 2, 2);
+const fish = new Card("Fish", "img/fish.png", 5, 2, 2, 3);
 cardMap.set(fish.name, fish);
-const gin = new Card("Gin", "img/gin.png", 1, 2, 3, 4);
+const gin = new Card("Gin", "img/gin.png", 3, 3, 4, 4);
 cardMap.set(gin.name, gin);
-const gopher = new Card("Gopher", "img/gopher.png", 3, 2, 4, 1);
+const gopher = new Card("Gopher", "img/gopher.png", 4, 4, 3, 3);
 cardMap.set(gopher.name, gopher);
-const penguin = new Card("Penguin", "img/penguin.png", 2, 2, 2, 2);
+const penguin = new Card("Penguin", "img/penguin.png", 3, 2, 5, 3);
 cardMap.set(penguin.name, penguin);
-const sheep = new Card("Sheep", "img/sheep.png", 2, 2, 2, 2);
+const sheep = new Card("Sheep", "img/sheep.png", 2, 4, 4, 4);
 cardMap.set(sheep.name, sheep);
-const snake = new Card("Snake", "img/snake.png", 2, 2, 2, 2);
+const snake = new Card("Snake", "img/snake.png", 1, 5, 3, 4);
 cardMap.set(snake.name, snake);
-const star = new Card("Star", "img/star.png", 2, 2, 2, 2);
+const star = new Card("Star", "img/star.png", 4, 3, 1, 4);
 cardMap.set(star.name, star);
 
 
@@ -80,38 +80,57 @@ function makeHandCards(count) {
     const starters = ["Gopher", "Crab", "Fish", "Apple", "Sheep"];
     const opponents = ["Coffee", "Gin", "Penguin", "Snake", "Star"];
     for (let i = 0; i < count; i++) {
-        let card = document.createElement('div');
-        card.className = "card"
-        card.classList.add("player");
-        card.onmousedown = function(e) {
-            cardToDrag = card;
-            card.classList.add('placed');
-            dragMouseDown(e);
-        };
-        let img = document.createElement('img');
-        cardInfo = cardMap.get(starters[i]);
-        cardInfo.player = true;
-        img.src = cardInfo.image;
-        img.alt = cardInfo.name;
-        card.appendChild(img);
-        hand.appendChild(card);
+        createCard(hand, "player", cardMap.get(starters[i]));
     }
     for (let i = 0; i < count; i++) {
-        let card = document.createElement('div');
-        card.className = "card"
-        card.classList.add("opponent");
-        card.onmousedown = function(e) {
-            cardToDrag = card;
-            card.classList.add('placed');
-            dragMouseDown(e);
-        };
-        let img = document.createElement('img');
-        cardInfo = cardMap.get(opponents[i]);
-        cardInfo.player = false;
-        img.src = cardInfo.image;
-        img.alt = cardInfo.name;
-        card.appendChild(img);
-        hand.appendChild(card);   
+        createCard(hand, "opponent", cardMap.get(opponents[i]));
+    }
+}
+
+function createCard(hand, team, cardInfo) {
+    let card = document.createElement('div');
+    card.className = "card"
+    card.classList.add(team);
+    card.onmousedown = function(e) {
+        cardToDrag = card;
+        card.classList.add('placed');
+        dragMouseDown(e);
+    };
+    createSpikes(card, cardInfo.up, 'top');
+    createSpikes(card, cardInfo.down, 'bottom');
+    createSpikes(card, cardInfo.left, 'left');
+    createSpikes(card, cardInfo.right, 'right');
+    let img = document.createElement('img');
+    cardInfo.player = team == "player";
+    img.src = cardInfo.image;
+    img.alt = cardInfo.name;
+    card.appendChild(img);
+    hand.appendChild(card);
+}
+
+function createSpikes(card, count, position) {
+    if (count == 1) {
+        let spike = document.createElement("div");
+        spike.className = `spike ${position}`;
+        // spike.style[position] = `${i * 1.5}em`;
+        if (position === 'top' || position === 'bottom') {
+            spike.style.left = `${(3) * 1.5}em`; // Adjust spacing between spikes
+        } else if (position === 'left' || position === 'right') {
+            spike.style.top = `${(3) * 1.5}em`; // Adjust spacing between spikes
+        }
+        card.appendChild(spike);
+    } else {
+        for (let i = 0; i < count; i++) {
+            let spike = document.createElement("div");
+            spike.className = `spike ${position}`;
+            // spike.style[position] = `${i * 1.5}em`;
+            if (position === 'top' || position === 'bottom') {
+                spike.style.left = `${(i + 6/count) * 1.5}em`; // Adjust spacing between spikes
+            } else if (position === 'left' || position === 'right') {
+                spike.style.top = `${(i + 6/count) * 1.5}em`; // Adjust spacing between spikes
+            }
+            card.appendChild(spike);
+        }
     }
 }
 
@@ -241,7 +260,7 @@ function checkAdjacent(cell, idx) {
             }
         }
     }
-    if (idx%c < c) {
+    if (idx%c < c-1) {
         const right = idx+1;
         if (cards[right]) {
             let placedCard = cards[idx];

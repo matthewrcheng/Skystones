@@ -62,6 +62,46 @@ body.dark-theme .cell:hover {
     width: 10em;
     height: 10em;
     margin: 1em;
+    position: relative;
+}
+
+.card .spike {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.card .spike.top {
+    border-width: 0 0.5em 1em 0.5em;
+    border-color: transparent transparent gray transparent;
+    top: -1em;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.card .spike.bottom {
+    border-width: 1em 0.5em 0 0.5em;
+    border-color: gray transparent transparent transparent;
+    bottom: -1em;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.card .spike.left {
+    border-width: 0.5em 1em 0.5em 0;
+    border-color: transparent gray transparent transparent;
+    left: -1em;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.card .spike.right {
+    border-width: 0.5em 0 0.5em 1em;
+    border-color: transparent transparent transparent gray;
+    right: -1em;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .player {
