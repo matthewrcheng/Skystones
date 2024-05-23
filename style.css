@@ -14,7 +14,6 @@ body.dark-theme #hand {
 }
 
 body.dark-theme .card {
-    background-color: darkcyan;
     border-color: white;
 }
 
@@ -29,6 +28,14 @@ body.dark-theme .cell {
 
 body.dark-theme .cell:hover {
     border-color: yellow;
+}
+
+body.dark-theme .player {
+    background-color: darkcyan;
+}
+
+body.dark-theme .opponent {
+    background-color: darkred;
 }
 
 /* game board */
