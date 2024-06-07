@@ -6,20 +6,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skystones</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <button id="theme-switcher">Switch Theme</button>
-    <table id="container">
-        <tr>
-            <div>
-                <header class="center">Skystones</header>
-            </div>
-            <div id="board"></div>
-        </tr>
-        <tr>
-            <div id="hand"></div>
-        </tr>
-    </table>
+    <div class="dropdown">
+        <button class="toggle-btn dropdown-toggle" id="toggleDropdown" aria-haspopup="true" aria-expanded="false">
+            <i id="modeIcon" class="fa-solid fa-circle-half-stroke" onload="toggleMode('auto')"></i>
+        </button>
+        <div class="dropdown-content" aria-labelledby="toggleDropdown">
+            <a href="#" onclick="toggleMode('light')"><i class="fas fa-sun"></i> Light Mode</a>
+            <a href="#" onclick="toggleMode('dark')"><i class="fas fa-moon"></i> Dark Mode</a>
+            <a href="#" onclick="toggleMode('auto')"><i class="fa-solid fa-circle-half-stroke"></i> System Default</a>
+        </div>
+    </div>
+    <div id="selection-box" class="overlay">
+        <div class="popup">
+            <h2>Select Mode</h2>
+            <button id="solo-btn">Solo</button>
+            <button id="vs-btn">VS</button>
+        </div>
+    </div>
+    <div id="hand-selection" class="overlay">
+        <div class="popup">
+            <h2>Select Your Hand</h2>
+            <div id="card-holder"></div>
+            <button id="start-btn">Start Game</button>
+        </div>
+    </div>
+    <div id="container">
+        <div>
+            <header class="center">Skystones</header>
+        </div>
+        <div id="board"></div>
+
+        <div id="hand"></div>
+    </div>
     <script src="script.js"></script>
 </body>
+
 </html>

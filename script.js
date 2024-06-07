@@ -1,25 +1,12 @@
 /*
-Dark/Light Toggle
-*/
-
-document.addEventListener('DOMContentLoaded', () => {
-    const themeSwitcher = document.getElementById('theme-switcher');
-    themeSwitcher.addEventListener('click', toggleTheme);
-
-    function toggleTheme() {
-        document.body.classList.toggle('dark-theme');
-    }
-});
-
-/*
 Global Vars
 */
 
-let r=3, c=3, hand_size=5;
+let r = 3, c = 3, hand_size = 5;
 let initialX, initialY;
 let cardToDrag = null;
 let id = 0;
-const cards = new Array(r*c).fill(null);
+const cards = new Array(r * c).fill(null);
 
 const board = document.getElementById("board");
 const hand = document.getElementById("hand");
@@ -93,39 +80,87 @@ cardMap.set(star1.id, star1);
 /*
 Display Functions
 */
+
+function toggleMode(mode) {
+    var modeIcon = document.getElementById('modeIcon');
+    if (mode === 'light') {
+        document.body.classList.remove('dark-mode');
+        modeIcon.classList.remove('fa-moon', 'fa-circle-half-stroke', 'dark-toggle');
+        modeIcon.classList.add('fa-sun');
+    } else if (mode === 'dark') {
+        document.body.classList.add('dark-mode');
+        modeIcon.classList.remove('fa-sun', 'fa-circle-half-stroke');
+        modeIcon.classList.add('fa-moon', 'dark-toggle');
+    } else {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            toggleMode('dark');
+        } else {
+            toggleMode('light')
+        }
+        modeIcon.classList.remove('fa-sun', 'fa-moon');
+        modeIcon.classList.add('fa-circle-half-stroke');
+    }
+}
+
 function makeGridCells(row, col) {
     for (let r = 0; r < row; r++) {
         let row = document.createElement('div');
         board.appendChild(row).className = "row";
         for (let c = 0; c < col; c++) {
             let cell = document.createElement('div');
-            cell.id = r*3 + c;
+            cell.id = r * 3 + c;
             cell.className = "cell";
             row.appendChild(cell);
         }
     }
 }
 
-function makeHandCards(count) {
+function makeHandCards(hand) {
     const starters = [5, 2, 3, 0, 7];
     const opponents = [1, 4, 6, 8, 9];
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < starters.length; i++) {
         createCard(hand, "player", cardMap.get(starters[i]));
     }
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < opponents.length; i++) {
         createCard(hand, "opponent", cardMap.get(opponents[i]));
     }
+}
+
+function selectCard(card, button) {
+    console.log(button);
+    if (button === 2) {
+        if (card.classList.contains('opponent')) {
+            card.classList.remove('opponent');
+        } else {
+            card.classList.add('opponent');
+            card.classList.remove('player');
+        }
+    } else {
+        if (card.classList.contains('player')) {
+            card.classList.remove('player');
+        } else {
+            card.classList.add('player');
+            card.classList.remove('opponent');
+        }
+    } 
 }
 
 function createCard(hand, team, cardInfo) {
     let card = document.createElement('div');
     card.className = "card"
     card.classList.add(team);
-    card.onmousedown = function(e) {
-        cardToDrag = card;
-        card.classList.add('placed');
-        dragMouseDown(e);
-    };
+    if (team === "selection") {
+        card.onmousedown = function (e) {
+            e.preventDefault();
+            selectCard(card, e.button);
+        }
+    } else {
+        card.onmousedown = function (e) {
+            cardToDrag = card;
+            card.classList.add('placed');
+            dragMouseDown(e);
+        };
+    }
     createSpikes(card, cardInfo.character.up, 'top');
     createSpikes(card, cardInfo.character.down, 'bottom');
     createSpikes(card, cardInfo.character.left, 'left');
@@ -155,9 +190,9 @@ function createSpikes(card, count, position) {
             spike.className = `spike ${position}`;
             // spike.style[position] = `${i * 1.5}em`;
             if (position === 'top' || position === 'bottom') {
-                spike.style.left = `${(i + 6/count) * 1.5}em`; // Adjust spacing between spikes
+                spike.style.left = `${(i + 6 / count) * 1.5}em`; // Adjust spacing between spikes
             } else if (position === 'left' || position === 'right') {
-                spike.style.top = `${(i + 6/count) * 1.5}em`; // Adjust spacing between spikes
+                spike.style.top = `${(i + 6 / count) * 1.5}em`; // Adjust spacing between spikes
             }
             card.appendChild(spike);
         }
@@ -196,7 +231,7 @@ function placeCard(e) {
             cardToDrag.style.transform = "translate(0px, 0px)";
             cardToDrag.classList.remove('placed');
         }
-        
+
     }
     cardToDrag = null;
     document.onmouseup = null;
@@ -232,7 +267,7 @@ function addCard(card, idx) {
 
 function checkAdjacent(cell, idx) {
     if (idx >= c) {
-        const up = idx-c;
+        const up = idx - c;
         if (cards[up]) {
             let placedCard = cards[idx];
             let altCard = cards[up];
@@ -250,8 +285,8 @@ function checkAdjacent(cell, idx) {
             }
         }
     }
-    if (idx < cards.length-c) {
-        const down = idx+c;
+    if (idx < cards.length - c) {
+        const down = idx + c;
         if (cards[down]) {
             let placedCard = cards[idx];
             let altCard = cards[down];
@@ -269,8 +304,8 @@ function checkAdjacent(cell, idx) {
             }
         }
     }
-    if (idx%c > 0) {
-        const left = idx-1;
+    if (idx % c > 0) {
+        const left = idx - 1;
         if (cards[left]) {
             let placedCard = cards[idx];
             let altCard = cards[left];
@@ -288,8 +323,8 @@ function checkAdjacent(cell, idx) {
             }
         }
     }
-    if (idx%c < c-1) {
-        const right = idx+1;
+    if (idx % c < c - 1) {
+        const right = idx + 1;
         if (cards[right]) {
             let placedCard = cards[idx];
             let altCard = cards[right];
@@ -309,5 +344,39 @@ function checkAdjacent(cell, idx) {
     }
 }
 
-makeGridCells(r, c);
-makeHandCards(hand_size);
+document.addEventListener('DOMContentLoaded', () => {
+    const soloBtn = document.getElementById('solo-btn');
+    const vsBtn = document.getElementById('vs-btn');
+    const startBtn = document.getElementById('start-btn');
+    const selectionBox = document.getElementById('selection-box');
+    const handSelectionBox = document.getElementById('hand-selection');
+    const gameContent = document.getElementById('container');
+    const cardHolder = document.getElementById('card-holder');
+    let selection = 'solo';
+
+    const chooseHand = (mode) => {
+        console.log(`Choosing hand for ${mode} mode`);
+        selection = mode;
+        selectionBox.style.display = 'none';
+        handSelectionBox.style.display = 'flex';
+        cardMap.forEach((card) => {
+            // cardHolder.appendChild(card.element);
+            createCard(cardHolder, 'selection', card);
+        })
+    }
+    const startGame = (selection) => {
+        
+        // Add your game initialization logic here based on the mode
+
+        // Hide the selection box and show the game content
+        handSelectionBox.style.display = 'none';
+        gameContent.style.display = 'block';
+        makeGridCells(r, c);
+        makeHandCards(hand);
+    };
+
+    soloBtn.addEventListener('click', () => chooseHand('solo'));
+    vsBtn.addEventListener('click', () => chooseHand('vs'));
+    startBtn.addEventListener('click', () => startGame(selection));
+    toggleMode('auto');
+});
