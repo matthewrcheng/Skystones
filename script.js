@@ -11,6 +11,10 @@ const cards = new Array(r * c).fill(null);
 const board = document.getElementById("board");
 const hand = document.getElementById("hand");
 
+// create array for user and opponent to store the idx of their selected cards
+const userCards = [];
+const opponentCards = [];
+
 class Card {
     constructor(id, character) {
         this.id = id;
@@ -115,44 +119,57 @@ function makeGridCells(row, col) {
     }
 }
 
-function makeHandCards(hand) {
-    const starters = [5, 2, 3, 0, 7];
-    const opponents = [1, 4, 6, 8, 9];
-    for (let i = 0; i < starters.length; i++) {
-        createCard(hand, "player", cardMap.get(starters[i]));
+function makeHandCards(hand, selection) {
+    console.log(userCards, opponentCards); 
+    for (let i = 0; i < userCards.length; i++) {
+        createCard(hand, "player", cardMap.get(parseInt(userCards[i].cardInfo.id)));
     }
-    for (let i = 0; i < opponents.length; i++) {
-        createCard(hand, "opponent", cardMap.get(opponents[i]));
-    }
+    if (selection === "vs") {
+        for (let i = 0; i < opponentCards.length; i++) {
+            createCard(hand, "opponent", cardMap.get(parseInt(opponentCards[i].cardInfo.id)));
+        }
+    }    
 }
 
 function selectCard(card, button) {
-    console.log(button);
+    // console.log(button);
     if (button === 2) {
         if (card.classList.contains('opponent')) {
             card.classList.remove('opponent');
+            opponentCards.pop(card);
         } else {
             card.classList.add('opponent');
             card.classList.remove('player');
+            opponentCards.push(card);
+            if (userCards.includes(card)) {
+                userCards.pop(card);
+            }
         }
     } else {
         if (card.classList.contains('player')) {
             card.classList.remove('player');
+            userCards.pop(card);
         } else {
             card.classList.add('player');
             card.classList.remove('opponent');
+            userCards.push(card);
+            if (opponentCards.includes(card)) {
+                opponentCards.pop(card);
+            }
         }
     } 
+    // console.log(userCards, opponentCards);
 }
 
 function createCard(hand, team, cardInfo) {
     let card = document.createElement('div');
     card.className = "card"
     card.classList.add(team);
+    card.cardInfo = cardInfo;
     if (team === "selection") {
         card.onmousedown = function (e) {
             e.preventDefault();
-            selectCard(card, e.button);
+            selectCard(card, e.buttons);
         }
     } else {
         card.onmousedown = function (e) {
@@ -169,6 +186,7 @@ function createCard(hand, team, cardInfo) {
     cardInfo.player = team == "player";
     img.src = cardInfo.character.image;
     img.alt = cardInfo.id;
+    console.log(cardInfo.player)
     card.appendChild(img);
     hand.appendChild(card);
 }
@@ -227,6 +245,14 @@ function placeCard(e) {
             let idx = parseInt(cell.id);
             addCard(cardToDrag, idx);
             checkAdjacent(cell, idx);
+            let winner = checkWin();
+            if (winner) {
+                if (winner == 1) {
+                    alert("Player 1 Wins!");
+                } else {
+                    alert("Player 2 Wins!");  
+                }
+            }
         } else {
             cardToDrag.style.transform = "translate(0px, 0px)";
             cardToDrag.classList.remove('placed');
@@ -271,7 +297,11 @@ function checkAdjacent(cell, idx) {
         if (cards[up]) {
             let placedCard = cards[idx];
             let altCard = cards[up];
+            console.log("Evaluating " + placedCard.character.name + " vs " + altCard.character.name);
+            console.log(placedCard.character, placedCard.player);
+            console.log(altCard.character, altCard.player);
             if (placedCard.player != altCard.player && placedCard.character.up > altCard.character.down) {
+                console.log("Character " + placedCard.character.name + " beats " + altCard.character.name);
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(up.toString()).querySelector('div');
@@ -290,7 +320,11 @@ function checkAdjacent(cell, idx) {
         if (cards[down]) {
             let placedCard = cards[idx];
             let altCard = cards[down];
+            console.log("Evaluating " + placedCard.character.name + " vs " + altCard.character.name);
+            console.log(placedCard.character, placedCard.player);
+            console.log(altCard.character, altCard.player);
             if (placedCard.player != altCard.player && placedCard.character.down > altCard.character.up) {
+                console.log("Character " + placedCard.character.name + " beats " + altCard.character.name);
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(down.toString()).querySelector('div');
@@ -309,7 +343,11 @@ function checkAdjacent(cell, idx) {
         if (cards[left]) {
             let placedCard = cards[idx];
             let altCard = cards[left];
+            console.log("Evaluating " + placedCard.character.name + " vs " + altCard.character.name);
+            console.log(placedCard.character, placedCard.player);
+            console.log(altCard.character, altCard.player);
             if (placedCard.player != altCard.player && placedCard.character.left > altCard.character.right) {
+                console.log("Character " + placedCard.character.name + " beats " + altCard.character.name);
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(left.toString()).querySelector('div');
@@ -328,7 +366,11 @@ function checkAdjacent(cell, idx) {
         if (cards[right]) {
             let placedCard = cards[idx];
             let altCard = cards[right];
+            console.log("Evaluating " + placedCard.character.name + " vs " + altCard.character.name);
+            console.log(placedCard.character, placedCard.player);
+            console.log(altCard.character, altCard.player);
             if (placedCard.player != altCard.player && placedCard.character.right > altCard.character.left) {
+                console.log("Character " + placedCard.character.name + " beats " + altCard.character.name);
                 altCard.player = placedCard.player;
                 if (altCard.player) {
                     card = document.getElementById(right.toString()).querySelector('div');
@@ -341,6 +383,25 @@ function checkAdjacent(cell, idx) {
                 }
             }
         }
+    }
+}
+
+function checkWin() {
+    // if all cells contain a card
+    let cells = document.querySelectorAll('.cell');
+    let playerCount = 0;
+    for (let cell of cells) {
+        if (!cell.classList.contains('filled')) {
+            return 0;
+        }
+        if (cell.classList.contains('player')) {
+            playerCount++;
+        }
+    }
+    if (playerCount >= hand_size) {
+        return 1; // player wins
+    } else {
+        return 2; // opponent wins
     }
 }
 
@@ -360,19 +421,33 @@ document.addEventListener('DOMContentLoaded', () => {
         selectionBox.style.display = 'none';
         handSelectionBox.style.display = 'flex';
         cardMap.forEach((card) => {
-            // cardHolder.appendChild(card.element);
+            // add selected idx to the array
             createCard(cardHolder, 'selection', card);
         })
     }
     const startGame = (selection) => {
+
         
         // Add your game initialization logic here based on the mode
-
+        if (selection === 'solo') {
+            if (userCards.length < hand_size) {
+                alert('Please select at least 5 cards');
+                return;
+            }
+        } else if (selection === 'vs') {
+            if (userCards.length < hand_size) {
+                alert('Please select at least 5 cards');
+                return;
+            } else if (opponentCards.length < hand_size) {
+                alert('Please select at least 5 cards');
+                return;
+            }
+        }
         // Hide the selection box and show the game content
         handSelectionBox.style.display = 'none';
         gameContent.style.display = 'block';
         makeGridCells(r, c);
-        makeHandCards(hand);
+        makeHandCards(hand, selection);
     };
 
     soloBtn.addEventListener('click', () => chooseHand('solo'));
